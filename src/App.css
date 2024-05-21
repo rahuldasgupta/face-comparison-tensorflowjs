@@ -92,7 +92,7 @@ p.headerTxt{
 .main{
   height: 100vh;
   width: 100vw;
-  background-color: #005da3;
+  background-color: #2486c7;
   padding-top: 15%;
 }
 .logo{
@@ -103,6 +103,16 @@ p.headerTxt{
   padding-right:  20px;
   border-right: 3px solid #fff;
   padding-bottom: 10px;
+}
+.infoTitle_txt{
+  margin-top: 10%;
+  margin-bottom: 2%;
+  padding-right:  20px;
+  border-right: 3px solid #fff;
+  padding-bottom: 10px;
+  color: #fff;
+  height: 100px;
+  font-family: 'Lato', sans-serif !important;
 }
 .attendance_marked{
   color: #fff;
@@ -119,16 +129,11 @@ p.headerTxt{
   margin-top: -15px;
 }
 .infoTitle{
-  font-size: 23px;
+  font-size: 30px;
   font-weight: 500px;
   font-family: 'Koulen', sans-serif !important;
   color: #fff;
-  padding-top: 45px;
-  padding-right: 30px;
-  line-height: 30px;
   letter-spacing: 1px;
-  padding-bottom: 0px;
-  margin-left: -5px;
-  text-align: left;
-  float: right;
+  padding-bottom: 50px;
+  text-align: center;
 }

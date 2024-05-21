@@ -5,6 +5,9 @@ import Col from "react-bootstrap/Col";
 import Lottie from 'react-lottie';
 import Modal from "react-bootstrap/Modal";
 import ModalBody from "react-bootstrap/ModalBody";
+import {initializeApp} from 'firebase/app';
+import moment from "moment";
+import { collection, query, where, getDocs, getFirestore, doc, setDoc, addDoc, deleteDoc  } from "firebase/firestore";
 
 import scanning from './images/scanning.json'; 
 import check_mark from './images/check-mark.json';
@@ -13,6 +16,18 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
 
 const queryParams =  new URLSearchParams(window.location.search);
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCbefli6cZ4SGkrHRBRJ9p_bqxk7rHAxPw",
+  authDomain: "peace-channel.firebaseapp.com",
+  projectId: "peace-channel",
+  storageBucket: "peace-channel.appspot.com",
+  messagingSenderId: "326500113628",
+  appId: "1:326500113628:web:6f72d082b9d7992fb4a819"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const defaultOptions = {
   loop: true,
@@ -66,6 +81,7 @@ function App() {
   const [loaderModal, setLoaderModal] = useState(true);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [markedModal, setMarkedModal] = useState(false);
+  const [docID, setDocID] = useState(false);
 
   const renderFace = async (image, x, y, width, height) => {
     const canvas = document.createElement("canvas");
@@ -81,10 +97,11 @@ function App() {
 
   useEffect(() => {
     (async () => {
+
       await getUserData()
       // loading the models
       await faceapi.nets.ssdMobilenetv1.loadFromUri('models');
-      //await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+      await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
       await faceapi.nets.faceLandmark68Net.loadFromUri('models');
       await faceapi.nets.faceRecognitionNet.loadFromUri('models');
       //await faceapi.nets.faceExpressionNet.loadFromUri('/models');
@@ -117,7 +134,7 @@ function App() {
         const distance = faceapi.euclideanDistance(datasetFaceDetection.descriptor, selfieFacedetection.descriptor);
         let filterDistance = (1-distance)*100
         console.log(filterDistance, distance)
-        if(distance<0.5){
+        if(distance<0.6){
           setIsMatched(true);
           setMarkedModal(true);
           markAttendance();
@@ -130,41 +147,66 @@ function App() {
     })();
   }, []);
   const markAttendance = async() => {
-    let session_id = queryParams.get("session_id");
+    let type = queryParams.get("type");
+    let doc_ID = queryParams.get("docID");
+    const today = moment(); 
 
-    let user = {
-      "session_id": session_id,
-      "isMarked": "True"
+    if(type=="IN"){
+      const userRef = doc(db, "in_attendance", doc_ID);
+      await setDoc(userRef, {
+        time_marked: today.format('hh:mmA'),
+        isMarked: true,
+      }, { merge: true });
     }
-
-    await fetch("https://nielit-icsas.in/api/admin/update_session_isMarked.php", {
-        method: "POST",
-        body: JSON.stringify(user),
-        headers: {
-          Accept: "application/json,  */*",
-          "Content-Type": "multipart/form-data",
-        },
-      })
-    .then((response) => response.json())
-    .then((responseJson) => {
-      console.log(responseJson)
-    })
+    else{
+      const userRef = doc(db, "out_attendance", doc_ID);
+      await setDoc(userRef, {
+        time_marked: today.format('hh:mmA'),
+        isMarked: true,
+      }, { merge: true });
+    }
   }
   const getUserData = async() => {
-    let session_id = queryParams.get("session_id");
-    await fetch("https://nielit-icsas.in/api/admin/faceData.php?session_id="+session_id, {
-        method: "GET",
+
+    let userID = queryParams.get("userID");
+    let type = queryParams.get("type");
+
+    var data = {};
+    var doc_ID = "";
+
+    const dataset_q = await query(collection(db, "users"), where("userID", "==", userID));
+    const dataset_querySnapshot = await getDocs(dataset_q);
+    dataset_querySnapshot.forEach((doc) => {
+        data = doc.data()
     })
-    .then((response) => response.json())
-    .then((responseJson) => {
-      console.log(responseJson)
-      setDatasetImage(responseJson.passport_photo)
-      setSelfieImage(responseJson.selfie_url)
-      setLoaderModal(false)
-      setTimeout(() => {
-        setIsDataLoaded(true)
-      }, 400);
-    })
+    setDatasetImage(data.dataset)
+
+    const today = moment(); 
+
+    if(type=="IN"){
+      const selfie_q =  await query(collection(db, "in_attendance"), where("userID", "==", userID), where("date_marked", "==", today.format('Do MMMM, YYYY')));
+      const selfie_querySnapshot = await getDocs(selfie_q);
+      selfie_querySnapshot.forEach((doc) => {
+          data = doc.data()
+          doc_ID = doc.id
+      })
+      setDocID(doc_ID)
+      setSelfieImage(data.selfie_url)
+    }
+    else{
+      const selfie_q =  await query(collection(db, "out_attendance"), where("userID", "==", userID), where("date_marked", "==", today.format('Do MMMM, YYYY')));
+      const selfie_querySnapshot = await getDocs(selfie_q);
+      selfie_querySnapshot.forEach((doc) => {
+          data = doc.data()
+          doc_ID = doc.id
+      })
+      setDocID(doc_ID)
+      setSelfieImage(data.selfie_url)
+    }
+    setLoaderModal(false)
+    setTimeout(() => {
+      setIsDataLoaded(true)
+    }, 400);
   }
 
 
@@ -210,7 +252,6 @@ function App() {
           </ModalBody>
       </Modal>
       <center>
-        <img className='logo' src={require('./images/logo_white.png')} alt="ID card" height="auto" />
         <span className='infoTitle'>Admin<br/>Face Recognition</span>
       </center>
       <div className="main-container">
