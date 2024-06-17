@@ -136,11 +136,13 @@ function App() {
         console.log(filterDistance, distance)
         if(distance<0.6){
           setIsMatched(true);
+          setLoaderModal(false)
           setMarkedModal(true);
           markAttendance();
         }
         else{
           setIsMatched(false)
+          setLoaderModal(false)
           setMarkedModal(true)
         }
       }
@@ -203,7 +205,7 @@ function App() {
       setDocID(doc_ID)
       setSelfieImage(data.selfie_url)
     }
-    setLoaderModal(false)
+    //setLoaderModal(false)
     setTimeout(() => {
       setIsDataLoaded(true)
     }, 400);
@@ -232,7 +234,7 @@ function App() {
           keyboard={false}
           centered
           size="md"
-          className="transaprentModal"
+          className="blackBackground"
       >
           <ModalBody>
             <center>

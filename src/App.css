@@ -36,7 +36,18 @@ div.gallery img {
   padding: 5%;
   margin: 0px !important;
   backdrop-filter: blur(3px);
-  background-color: transparent;
+  background-color: #000;
+  border: 0px solid #fff;
+  display: flex;
+    align-items: center;
+    align-self: center;
+    justify-content: center;
+}
+.blackBackground div{
+  padding: 5%;
+  margin: 0px !important;
+  backdrop-filter: blur(3px);
+  background-color: #000;
   border: 0px solid #fff;
   display: flex;
     align-items: center;
