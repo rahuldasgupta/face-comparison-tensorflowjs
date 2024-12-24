@@ -17,12 +17,12 @@ import './App.css';
 const queryParams = new URLSearchParams(window.location.search);
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBmZ9odbp_CfRWHs4bETrVmgHyAo1VCdd0",
-  authDomain: "dyrs-nagaland.firebaseapp.com",
-  projectId: "dyrs-nagaland",
-  storageBucket: "dyrs-nagaland.appspot.com",
-  messagingSenderId: "479154911562",
-  appId: "1:479154911562:web:16f629fe05b97634c729b3"
+  apiKey: "AIzaSyAhnywMVtApHh-M9oYD7flU8WXKEVannFI",
+  authDomain: "nbse-nagaland.firebaseapp.com",
+  projectId: "nbse-nagaland",
+  storageBucket: "nbse-nagaland.firebasestorage.app",
+  messagingSenderId: "815051854753",
+  appId: "1:815051854753:web:321a8d25751244873631e0"
 };
 
 const app = initializeApp(firebaseConfig);
